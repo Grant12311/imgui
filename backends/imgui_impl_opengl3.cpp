@@ -84,46 +84,7 @@
 #include <stdint.h>     // intptr_t
 #endif
 
-// GL includes
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-#include <GLES2/gl2.h>
-#elif defined(IMGUI_IMPL_OPENGL_ES3)
-#if (defined(__APPLE__) && (TARGET_OS_IOS || TARGET_OS_TV))
-#include <OpenGLES/ES3/gl.h>    // Use GL ES 3
-#else
-#include <GLES3/gl3.h>          // Use GL ES 3
-#endif
-#else
-// About Desktop OpenGL function loaders:
-//  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
-//  Helper libraries are often used for this purpose! Here we are supporting a few common ones (gl3w, glew, glad).
-//  You may use another loader/header of your choice (glext, glLoadGen, etc.), or chose to manually implement your own.
-#if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
-#include <GL/gl3w.h>            // Needs to be initialized with gl3wInit() in user's code
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
-#include <GL/glew.h>            // Needs to be initialized with glewInit() in user's code.
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
-#include <glad/glad.h>          // Needs to be initialized with gladLoadGL() in user's code.
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD2)
-#include <glad/gl.h>            // Needs to be initialized with gladLoadGL(...) or gladLoaderLoadGL() in user's code.
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLBINDING2)
-#ifndef GLFW_INCLUDE_NONE
-#define GLFW_INCLUDE_NONE       // GLFW including OpenGL headers causes ambiguity or multiple definition errors.
-#endif
-#include <glbinding/Binding.h>  // Needs to be initialized with glbinding::Binding::initialize() in user's code.
-#include <glbinding/gl/gl.h>
-using namespace gl;
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLBINDING3)
-#ifndef GLFW_INCLUDE_NONE
-#define GLFW_INCLUDE_NONE       // GLFW including OpenGL headers causes ambiguity or multiple definition errors.
-#endif
-#include <glbinding/glbinding.h>// Needs to be initialized with glbinding::initialize() in user's code.
-#include <glbinding/gl/gl.h>
-using namespace gl;
-#else
-#include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
-#endif
-#endif
+#include <GLES3/gl31.h>
 
 // Desktop GL 3.2+ has glDrawElementsBaseVertex() which GL ES and WebGL don't have.
 #if !defined(IMGUI_IMPL_OPENGL_ES2) && !defined(IMGUI_IMPL_OPENGL_ES3) && defined(GL_VERSION_3_2)
@@ -284,12 +245,12 @@ static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int fb_wid
     glUseProgram(g_ShaderHandle);
     glUniform1i(g_AttribLocationTex, 0);
     glUniformMatrix4fv(g_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
-    
+
 #ifdef IMGUI_IMPL_OPENGL_MAY_HAVE_BIND_SAMPLER
     if (g_GlVersion >= 330)
         glBindSampler(0, 0); // We use combined texture/sampler state. Applications using GL 3.3 may set that otherwise.
 #endif
-    
+
     (void)vertex_array_object;
 #ifndef IMGUI_IMPL_OPENGL_ES2
     glBindVertexArray(vertex_array_object);
